@@ -18,10 +18,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from voxverse import __version__
 from voxverse.api.routes import health, info
-from voxverse.api.schemas import ErrorResponse
-from voxverse.config.logging import get_logger, set_request_id, setup_logging
+from voxverse.api.schemas import ErrorDetail, ErrorResponse
+from voxverse.config.logging import get_logger, get_request_id, set_request_id, setup_logging
 from voxverse.config.settings import get_settings
 
 logger = get_logger("api")
@@ -35,9 +34,6 @@ async def _validation_error_handler(
     exc: RequestValidationError,
 ) -> JSONResponse:
     """Return a structured 422 response for validation failures."""
-    from voxverse.api.schemas import ErrorDetail
-    from voxverse.config.logging import get_request_id
-
     details = [
         ErrorDetail(
             field=" → ".join(str(loc) for loc in err.get("loc", [])),
@@ -63,8 +59,6 @@ async def _generic_exception_handler(
     exc: Exception,
 ) -> JSONResponse:
     """Catch-all handler that prevents stack traces from leaking."""
-    from voxverse.config.logging import get_request_id
-
     logger.exception("Unhandled exception during request processing")
     body = ErrorResponse(
         error="internal_server_error",
@@ -83,8 +77,6 @@ async def _http_404_handler(
     exc: Any,
 ) -> JSONResponse:
     """Return a structured 404 response for unknown routes."""
-    from voxverse.config.logging import get_request_id
-
     body = ErrorResponse(
         error="not_found",
         message=f"The requested path '{request.url.path}' was not found.",

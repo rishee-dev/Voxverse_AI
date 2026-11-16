@@ -4,14 +4,16 @@ VoxVerse GenAI Speaker — Voice enrollment and profile management (P1).
 Owner: P1
 
 Responsibilities:
-- Speaker voice enrollment from audio samples
-- Speaker embedding extraction (e.g., using SpeechBrain or Resemblyzer)
-- Voice profile storage and retrieval
-- Speaker verification and identification
-- Embedding similarity computation for voice matching
+- Speaker voice enrollment from validated reference audio
+- Explicit consent verification and audit metadata recording
+- Speaker representation extraction for voice conditioning
+- Secure voice profile storage and retrieval
+- Voice profile deletion lifecycle support
+- Embedding similarity computation for speaker verification
 
-Voice profiles are stored as serialized embedding vectors alongside
-metadata (sample rate, duration, enrollment date, quality score).
+Voice profiles are stored alongside consent records and technical metadata
+(sample rate, duration, enrollment timestamp, audio quality assessment).
+Never commit or expose unauthorized speaker representations.
 """
 
 __all__: list[str] = []

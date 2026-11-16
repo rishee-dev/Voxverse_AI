@@ -78,6 +78,7 @@ venv.bak/
 # Model Weights & Checkpoints
 # -----------------------------------------------------------------------------
 models/
+checkpoints/
 *.pt
 *.pth
 *.bin
@@ -88,13 +89,15 @@ models/
 *.hdf5
 *.pkl
 *.pickle
+*.ckpt
 
 # -----------------------------------------------------------------------------
-# Audio Recordings
+# Audio Recordings (Source & Uploaded)
 # Keep directory structure via .gitkeep, but exclude actual audio files
 # -----------------------------------------------------------------------------
 storage/audio/*
 !storage/audio/.gitkeep
+uploads/
 *.wav
 *.mp3
 *.flac
@@ -103,22 +106,45 @@ storage/audio/*
 *.aac
 *.wma
 *.opus
+*.webm
 
 # -----------------------------------------------------------------------------
-# Voice Profiles & Embeddings
+# Generated Audio (Synthesized Outputs)
+# -----------------------------------------------------------------------------
+storage/output/*
+!storage/output/.gitkeep
+outputs/
+
+# -----------------------------------------------------------------------------
+# Voice Profiles & Speaker Embeddings
 # -----------------------------------------------------------------------------
 storage/voices/*
 !storage/voices/.gitkeep
+voices/
 *.npy
 *.npz
+*.embedding
+*.vec
 
 # -----------------------------------------------------------------------------
-# General Storage (keep structure)
+# Temporary Files & Working Buffers
 # -----------------------------------------------------------------------------
 storage/temp/*
 !storage/temp/.gitkeep
-storage/output/*
-!storage/output/.gitkeep
+temp/
+tmp/
+*.tmp
+*.temp
+
+# -----------------------------------------------------------------------------
+# Local Databases & Metadata
+# -----------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
 
 # -----------------------------------------------------------------------------
 # Secrets & Credentials
@@ -131,6 +157,8 @@ storage/output/*
 *.p12
 *.pfx
 *.crt
+*.token
+token.json
 secrets/
 credentials/
 

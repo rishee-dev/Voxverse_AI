@@ -7,22 +7,19 @@ Provides reusable fixtures for the entire test suite:
 - Temporary directory management
 - Sample audio configuration defaults
 
-Owner: P4 (Frontend & Integration Engineer) / Shared
+Owner: P4 (Pipeline Engineer) / Shared
 """
 
 from __future__ import annotations
 
-import os
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
-from typing import Any
 
 import pytest
-import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from voxverse.api.app import app
-from voxverse.config.settings import Settings, get_settings, reset_settings
+from voxverse.config.settings import reset_settings
 
 
 @pytest.fixture(autouse=True)
@@ -43,7 +40,7 @@ def test_app():
     return app
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
     """Yield an httpx.AsyncClient wired to the FastAPI application.
 

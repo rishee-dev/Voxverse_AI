@@ -10,15 +10,14 @@ Covers:
 - Version and environment alignment with configuration
 - Correlation headers and HTTP method enforcement
 
-Owner: P4 (Frontend & Integration Engineer) / Shared
+Owner: P4 (Pipeline Engineer) / Shared
 """
 
 from __future__ import annotations
 
 import pytest
-from httpx import ASGITransport, AsyncClient
+from httpx import AsyncClient
 
-from voxverse.api.app import app
 from voxverse.api.schemas import FeatureStatus
 from voxverse.config.settings import get_settings
 

@@ -9,13 +9,12 @@ Covers:
 - Correlation and timing response headers
 - Method validation (POST disallowed)
 
-Owner: P4 (Frontend & Integration Engineer) / Shared
+Owner: P4 (Pipeline Engineer) / Shared
 """
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
 
 import pytest
 from httpx import ASGITransport, AsyncClient

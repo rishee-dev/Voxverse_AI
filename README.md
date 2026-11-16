@@ -233,6 +233,7 @@ VOXVERSE/
 ├── .gitignore
 ├── pyproject.toml
 ├── requirements.txt
+├── AGENTS.md                   # Engineering standards & agent operating charter
 ├── ARCHITECTURE.md             # System architecture
 ├── MODEL_DECISIONS.md          # Model research & decisions
 └── README.md                   # This file
@@ -241,6 +242,15 @@ VOXVERSE/
 ---
 
 ## Development Guidelines
+
+All developers and automated agents must adhere to the engineering quality, authenticity, security, and review standards defined in [AGENTS.md](./AGENTS.md).
+
+### Core Principles
+
+- **Authenticity:** Never create fake model outputs, simulated voice cloning, or fabricated benchmarks.
+- **Verification:** Every claimed feature must be verified with reproducible test evidence.
+- **Modularity:** Respect P1–P4 ownership boundaries. Keep ML inference separate from API routes.
+- **Privacy & Consent:** Explicit consent is required for speaker enrollment; profile deletion must be supported.
 
 ### Code Style
 

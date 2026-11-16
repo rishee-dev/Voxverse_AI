@@ -9,7 +9,6 @@ Owner: Shared (all team members)
 from __future__ import annotations
 
 import logging
-from functools import lru_cache
 
 from voxverse.config.settings import Settings
 from voxverse.config.settings import get_settings as _get_settings
