@@ -180,43 +180,30 @@ unresolved_decisions:
       format, dimensionality, and storage requirements.
 
   - id: UD-05
-    tag: "[UNRESOLVED]"
+    tag: "[RESOLVED - Phase 1A]"
     area: Audio Engineering
-    owner: P3
+    owner: P1
     title: Audio format standardization
     description: >
-      Need to define the internal audio format used throughout the pipeline
-      to avoid repeated resampling. All modules (ASR, TTS, voice cloning)
-      may expect different sample rates.
-    parameters_to_decide:
-      - "Sample rate: 16000 Hz (Whisper default) vs 22050 Hz vs 24000 Hz (TTS common)"
-      - "Channels: mono (1) vs stereo (2)"
-      - "Bit depth: 16-bit PCM vs 32-bit float"
-      - "Output format: WAV vs MP3 vs both"
-    action: >
-      P3 to catalog the input requirements of each model (Whisper,
-      IndicTrans2 — N/A, TTS engine) and propose a standard internal
-      format that minimizes conversion steps. Document any required
-      resampling points.
+      Standardized pipeline internal audio format established in Phase 1A:
+      16,000 Hz, 1 channel (mono), 16-bit linear PCM WAV (PCM_16).
+      Implemented and verified in voxverse.genai.audio.normalizer.
+    decisions_reached:
+      - "Sample rate: 16000 Hz (native input for Whisper and Silero VAD)"
+      - "Channels: mono (1 channel)"
+      - "Bit depth: 16-bit PCM"
+      - "Output format: WAV (lossless, deterministic)"
 
   - id: UD-06
-    tag: "[UNRESOLVED]"
+    tag: "[RESOLVED - Phase 1A]"
     area: DevOps
     owner: P1
     title: Python 3.14 compatibility with ML libraries
     description: >
-      Python 3.14 is very new (released 2025). Many ML libraries
-      (PyTorch, torchaudio, fairseq2, transformers, etc.) may not yet
-      publish pre-built wheels for 3.14. This could block development
-      or require building from source / using older Python.
-    risks:
-      - "PyTorch may lack cp314 wheels"
-      - "fairseq2 (IndicTrans2 dependency) may not build on 3.14"
-      - "ARM64 + x64 emulation adds another compatibility layer"
-    action: >
-      P1 to check PyPI for cp314 wheel availability of core dependencies.
-      If unavailable, evaluate fallback: install Python 3.11 or 3.12 in
-      a separate venv. Document findings before any pip installs.
+      Empirically tested on Windows 11 ARM64 (Qualcomm Snapdragon X under x64 emulation).
+      Pre-built cp314 AMD64 wheels verified for: NumPy 2.5, SoundFile 0.14, SciPy 1.18,
+      ONNX Runtime 1.32, PyTorch 2.15+cpu, and torchaudio 2.11+cpu. CTranslate2 4.9
+      wheels verified on PyPI. Existing .venv is stable for Phase 1B.
 
   - id: UD-07
     tag: "[UNRESOLVED]"

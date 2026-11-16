@@ -1,18 +1,41 @@
-"""
-VoxVerse GenAI Audio — Audio preprocessing and validation (P1).
+"""VoxVerse GenAI Audio — Audio preprocessing, validation, normalization, and VAD (P1).
 
-Owner: P1
-
-Responsibilities:
-- Audio file format detection and conversion (via FFmpeg)
-- Sample rate normalization and channel handling
-- Voice Activity Detection (VAD) to isolate speech segments
-- Audio quality validation (SNR estimation, clipping detection)
-- Silence trimming and segmentation for downstream processing
-
-Dependencies:
-    - FFmpeg (external binary, must be installed separately)
-    - librosa or torchaudio for audio feature extraction
+Owner: P1 — Audio and Speaker Profile Engineer
 """
 
-__all__: list[str] = []
+from __future__ import annotations
+
+from voxverse.genai.audio.decoder import AudioDecoder, is_ffmpeg_available
+from voxverse.genai.audio.exceptions import (
+    AudioDecodeError,
+    AudioProcessingError,
+    AudioValidationError,
+    FFmpegNotFoundError,
+    VADInferenceError,
+)
+from voxverse.genai.audio.normalizer import AudioNormalizer
+from voxverse.genai.audio.schemas import (
+    AudioMetadata,
+    AudioQualityReport,
+    SpeechSegment,
+    VADResult,
+)
+from voxverse.genai.audio.validator import AudioValidator
+from voxverse.genai.audio.vad import SileroVADDetector
+
+__all__: list[str] = [
+    "AudioDecoder",
+    "AudioNormalizer",
+    "AudioValidator",
+    "SileroVADDetector",
+    "AudioMetadata",
+    "AudioQualityReport",
+    "SpeechSegment",
+    "VADResult",
+    "AudioProcessingError",
+    "AudioDecodeError",
+    "AudioValidationError",
+    "FFmpegNotFoundError",
+    "VADInferenceError",
+    "is_ffmpeg_available",
+]
