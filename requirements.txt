@@ -1,0 +1,56 @@
+# =============================================================================
+# VoxVerse — requirements.txt
+# =============================================================================
+# Phase 0 (Foundation) dependencies ONLY.
+# Pinned to recent stable versions.  Tested on Python ≥3.11; Python 3.14 is
+# very new — wheel availability is NOT guaranteed for every package below.
+# =============================================================================
+
+# ── Web framework ────────────────────────────────────────────────────────────
+fastapi==0.163.1
+uvicorn[standard]==0.54.0
+
+# ── Data validation & settings ───────────────────────────────────────────────
+pydantic==2.14.3
+pydantic-settings==2.16.3
+
+# ── Environment variables from .env files ────────────────────────────────────
+python-dotenv==1.2.4
+
+# ── Async HTTP client (used by FastAPI TestClient & future service calls) ────
+httpx==0.28.1
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+pytest==9.2.0
+pytest-asyncio==1.5.0
+
+# =============================================================================
+# FUTURE DEPENDENCIES — DO NOT INSTALL YET
+# These will be added incrementally as each phase begins.
+# =============================================================================
+#
+# --- Phase 1: Audio Processing & Transcription (P1) --------------------------
+# openai-whisper~=20231117        # Whisper ASR model
+# torch~=2.5.0                   # PyTorch (CPU build; see requirements-gpu.txt)
+# torchaudio~=2.5.0              # Audio I/O for PyTorch
+# librosa~=0.10.2                # Audio analysis utilities
+# soundfile~=0.12.1              # Read/write audio files
+# pydub~=0.25.1                  # Audio manipulation helpers
+# ffmpeg-python~=0.2.0           # FFmpeg bindings (requires system FFmpeg)
+#
+# --- Phase 2: Translation (P2) -----------------------------------------------
+# transformers~=4.46.0           # Hugging Face Transformers
+# sentencepiece~=0.2.0           # Tokeniser for multilingual models
+# sacremoses~=0.1.1              # Tokenisation / detokenisation utilities
+# indic-nlp-library~=0.92        # Indian language NLP tools
+#
+# --- Phase 3: Voice Cloning & TTS (P3) ---------------------------------------
+# TTS~=0.22.0                    # Coqui TTS (voice cloning + synthesis)
+# scipy~=1.14.0                  # Signal processing
+# numpy~=2.1.0                   # Numerical computing
+#
+# --- Phase 4: Integration & Deployment (P4) -----------------------------------
+# python-multipart~=0.0.17       # File upload parsing for FastAPI
+# celery~=5.4.0                  # Async task queue (optional)
+# redis~=5.2.0                   # Celery broker / caching (optional)
+# docker~=7.1.0                  # Docker SDK (CI/CD helpers)

@@ -1,0 +1,238 @@
+# =============================================================================
+# VoxVerse — Project Configuration
+# AI-Powered English-to-Telugu Voice Translation Platform
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project Metadata
+# -----------------------------------------------------------------------------
+project:
+  name: VoxVerse
+  version: "0.1.0"
+  description: >
+    An AI-powered platform that translates English speech to Telugu while
+    preserving the original speaker's voice characteristics through voice
+    cloning. The MVP focuses on batch processing of audio files with a
+    CPU-only pipeline.
+  repository: ""  # TODO: Add remote repository URL once created
+  license: ""     # TODO: Decide on license
+
+# -----------------------------------------------------------------------------
+# Team Ownership Structure
+# -----------------------------------------------------------------------------
+team:
+  - id: P1
+    role: Audio and Speaker Profile Engineer
+    responsibilities:
+      - Audio preprocessing and format standardization
+      - Voice Activity Detection (VAD) using Silero VAD
+      - Audio quality validation and noise assessment
+      - Voice enrollment and speaker reference management
+      - Voice profile and embedding storage with consent/deletion lifecycle
+
+  - id: P2
+    role: Speech Understanding Engineer
+    responsibilities:
+      - Speech-to-text (ASR) using Whisper / faster-whisper CPU INT8
+      - English language validation and transcription confidence scoring
+      - Text translation using AI4Bharat IndicTrans2 (English -> Telugu)
+      - Text post-processing, normalization, and script validation
+      - Model benchmarking and memory/latency profiling on CPU
+
+  - id: P3
+    role: Voice Generation Engineer
+    responsibilities:
+      - Telugu speech synthesis research (AI4Bharat IndicF5, Indic-Speak)
+      - Alternative TTS candidate evaluation for CPU execution
+      - Speaker conditioning and voice characteristic preservation
+      - Speaker similarity evaluation (objective embedding distance + subjective scoring)
+      - Output audio formatting and quality assurance
+
+  - id: P4
+    role: Pipeline Engineer
+    responsibilities:
+      - FastAPI backend architecture, OpenAPI contracts, and dependencies
+      - Batch pipeline orchestration and stage-by-stage job processing
+      - Processing metrics, telemetry, and error tracking
+      - Storage layout and SQLite development metadata
+      - System integration, end-to-end testing, and local execution lifecycle
+
+# -----------------------------------------------------------------------------
+# MVP Scope
+# -----------------------------------------------------------------------------
+mvp:
+  source_language: English
+  target_language: Telugu
+  processing_mode: batch          # No real-time/streaming in MVP
+  hardware_target: CPU-only       # No GPU required for MVP
+  deployment_target: local        # Single-machine deployment for MVP
+
+  features:
+    - Audio file upload (WAV, MP3, FLAC)
+    - English speech recognition (ASR via Whisper)
+    - English-to-Telugu text translation (IndicTrans2)
+    - Telugu speech synthesis with voice cloning
+    - Downloadable translated audio output
+    - Speaker consent workflow
+
+  out_of_scope:
+    - Real-time / streaming translation
+    - Multi-language support beyond English → Telugu
+    - Mobile applications
+    - Cloud deployment and scaling
+    - User authentication and accounts
+    - Billing or usage tracking
+
+# -----------------------------------------------------------------------------
+# Development Environment
+# -----------------------------------------------------------------------------
+environment:
+  os: Windows 11 (ARM64, Snapdragon X)
+  python: "3.14"
+  gpu: none
+  notes:
+    - Running x64 Python under ARM64 emulation
+    - FFmpeg required as external dependency
+    - CPU-only inference — expect slower model runtimes
+
+# -----------------------------------------------------------------------------
+# UNRESOLVED Decisions
+#
+# Each item tagged [UNRESOLVED] requires investigation and a team decision
+# before implementation can proceed in that area.
+# -----------------------------------------------------------------------------
+unresolved_decisions:
+
+  - id: UD-01
+    tag: "[UNRESOLVED]"
+    area: ASR
+    owner: P2
+    title: Whisper model variant selection
+    description: >
+      Which Whisper model size to use for CPU-only inference?
+      Options: tiny, base, small. Larger models (medium, large) are likely
+      too slow for CPU. Need to benchmark accuracy vs. latency tradeoffs
+      on the target hardware (Snapdragon X under x64 emulation).
+    options:
+      - "openai/whisper-tiny  — Fastest, lowest accuracy (~32M params)"
+      - "openai/whisper-base  — Balanced (~74M params)"
+      - "openai/whisper-small — Best accuracy of viable options (~244M params)"
+    action: >
+      P2 to benchmark all three variants on sample English audio clips
+      and report WER (Word Error Rate) and processing time per minute of
+      audio on the target hardware.
+
+  - id: UD-02
+    tag: "[UNRESOLVED]"
+    area: Translation
+    owner: P2
+    title: IndicTrans2 model size and availability verification
+    description: >
+      IndicTrans2 (AI4Bharat) is the leading open-source English-to-Indic
+      translation model. Need to verify: (a) which model sizes are available
+      on HuggingFace, (b) whether the En→Te direction is supported in the
+      publicly released checkpoints, (c) CPU inference feasibility and
+      latency, and (d) Python 3.14 compatibility of the inference stack
+      (fairseq2 / ctranslate2).
+    options:
+      - "ai4bharat/indictrans2-en-indic-200M — Smaller, faster"
+      - "ai4bharat/indictrans2-en-indic-1B   — Higher quality, slower"
+    action: >
+      P2 to attempt model download, verify En→Te support, run a test
+      translation, and report quality and latency.
+
+  - id: UD-03
+    tag: "[UNRESOLVED]"
+    area: TTS
+    owner: P3
+    title: IndicF5 vs Indic-Speak TTS engine selection
+    description: >
+      Two candidate TTS systems for Telugu synthesis with voice cloning
+      capability need evaluation: IndicF5 (fine-tuned F5-TTS for Indic
+      languages) and Indic-Speak. Key criteria: Telugu voice quality,
+      voice cloning fidelity, CPU inference speed, and Python 3.14
+      compatibility.
+    options:
+      - "IndicF5    — F5-TTS fine-tuned for Indic languages"
+      - "Indic-Speak — Alternative Indic TTS system"
+    action: >
+      P3 to evaluate both systems on Telugu synthesis quality, voice
+      cloning accuracy (MOS, speaker similarity), and CPU latency.
+      Produce sample outputs for team review.
+
+  - id: UD-04
+    tag: "[UNRESOLVED]"
+    area: Voice Cloning
+    owner: P3
+    title: Voice embedding extraction method
+    description: >
+      How to extract speaker embeddings from the source English audio for
+      voice cloning? Options include using a pre-trained speaker
+      verification model (e.g., SpeechBrain ECAPA-TDNN, Resemblyzer) or
+      relying on the TTS engine's built-in speaker conditioning. This
+      choice depends on UD-03 (TTS selection).
+    options:
+      - "SpeechBrain ECAPA-TDNN — Well-established, separate extraction step"
+      - "Resemblyzer            — Lightweight, easy to integrate"
+      - "TTS-native conditioning — Use the selected TTS engine's built-in method"
+    action: >
+      P3 to investigate after UD-03 is resolved. Document the embedding
+      format, dimensionality, and storage requirements.
+
+  - id: UD-05
+    tag: "[UNRESOLVED]"
+    area: Audio Engineering
+    owner: P3
+    title: Audio format standardization
+    description: >
+      Need to define the internal audio format used throughout the pipeline
+      to avoid repeated resampling. All modules (ASR, TTS, voice cloning)
+      may expect different sample rates.
+    parameters_to_decide:
+      - "Sample rate: 16000 Hz (Whisper default) vs 22050 Hz vs 24000 Hz (TTS common)"
+      - "Channels: mono (1) vs stereo (2)"
+      - "Bit depth: 16-bit PCM vs 32-bit float"
+      - "Output format: WAV vs MP3 vs both"
+    action: >
+      P3 to catalog the input requirements of each model (Whisper,
+      IndicTrans2 — N/A, TTS engine) and propose a standard internal
+      format that minimizes conversion steps. Document any required
+      resampling points.
+
+  - id: UD-06
+    tag: "[UNRESOLVED]"
+    area: DevOps
+    owner: P1
+    title: Python 3.14 compatibility with ML libraries
+    description: >
+      Python 3.14 is very new (released 2025). Many ML libraries
+      (PyTorch, torchaudio, fairseq2, transformers, etc.) may not yet
+      publish pre-built wheels for 3.14. This could block development
+      or require building from source / using older Python.
+    risks:
+      - "PyTorch may lack cp314 wheels"
+      - "fairseq2 (IndicTrans2 dependency) may not build on 3.14"
+      - "ARM64 + x64 emulation adds another compatibility layer"
+    action: >
+      P1 to check PyPI for cp314 wheel availability of core dependencies.
+      If unavailable, evaluate fallback: install Python 3.11 or 3.12 in
+      a separate venv. Document findings before any pip installs.
+
+  - id: UD-07
+    tag: "[UNRESOLVED]"
+    area: DevOps
+    owner: P1
+    title: FFmpeg installation method on Windows ARM64
+    description: >
+      FFmpeg is required by multiple components (audio loading, format
+      conversion, resampling). It is not currently installed on the
+      development machine. Need to determine the best installation method
+      for Windows on ARM64 (Snapdragon X).
+    options:
+      - "winget install FFmpeg     — Preferred if ARM64 build is available"
+      - "choco install ffmpeg      — Chocolatey package"
+      - "scoop install ffmpeg      — Scoop package"
+      - "Manual download from gyan.dev or BtbN GitHub releases"
+    action: >
+      P1 to verify which method provides a working ARM64 or x64 FFmpeg
+      binary, install it, and confirm it is on PATH.
