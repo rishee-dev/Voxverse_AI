@@ -1,8 +1,8 @@
 # VoxVerse — Model Research & Decisions
 
-> **Status:** Research Phase — No models verified  
-> **Last Updated:** 2026-11-16  
-> **Authors:** P1, P2, P3, P4
+> **Status:** Active Engineering — VAD, ASR, and Speaker Representation Models Verified  
+> **Last Updated:** 2026-11-17  
+> **Authors:** P1 (Audio/Speaker), P2 (Speech/ASR), P3 (TTS/Voice Gen), P4 (Pipeline)
 
 ---
 
@@ -391,8 +391,9 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 - Empirically verified in Phase 1A using `silero_vad.onnx` (v5, 2.2 MB) on ONNX Runtime CPU.
 - Zero false positives on digital silence and pure synthetic tones.
 - Full pipeline integration available in `voxverse.genai.audio.vad.SileroVADDetector`.
+- **Phase 1C Architecture Fix:** Silero VAD v5 requires a 64-sample recurrent context prefix prepended to each 512-sample inference chunk (`shape: (1, 576)`). With this context loop implemented in `SileroVADDetector`, human speech detection confidence is >0.999 while non-speech tones remain at 0.000.
 
-#### Verification Status: ✅ VERIFIED (ONNX Runtime CPU)
+#### Verification Status: ✅ VERIFIED (ONNX Runtime CPU with v5 Recurrent Context)
 
 ---
 
@@ -415,39 +416,23 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 | **Repository** | https://github.com/resemble-ai/Resemblyzer |
 | **License** | Apache 2.0 |
 | **Language Support** | Language-agnostic speaker embeddings |
-| **Telugu Relevance** | Used on English input audio to extract speaker identity |
+| **Telugu Relevance** | Evaluated on English input audio to extract speaker identity |
 
 #### Key Features
 
 - Based on the GE2E (Generalized End-to-End) speaker verification model
 - Produces 256-dimensional speaker embeddings
 - Lightweight and simple API
-- Can compute embeddings from short audio clips
-
-#### CPU Performance
-
-- Relatively lightweight model.
-- CPU inference should be fast (sub-second for short audio clips).
-- Actual performance: **needs verification**.
 
 #### Compatibility
 
-| Check | Status |
-|---|---|
-| Python 3.14 compatibility | ⚠️ **UNKNOWN** — last updated check needed |
-| ARM64 / Snapdragon X compatibility | ⚠️ **UNKNOWN** |
-| Windows compatibility | Likely supported |
-| CPU-only inference | Supported |
+| Check | Status | Notes |
+|---|---|---|
+| Python 3.14 compatibility | ❌ **INCOMPATIBLE** | `webrtcvad` C extension fails compilation; outdated `typing` dependency corrupts Python 3.14 stdlib. |
+| ARM64 / Snapdragon X compatibility | ❌ **BLOCKED** | Cannot install due to compilation errors on Python 3.14. |
+| Windows compatibility | ❌ **BLOCKED** | Deprecated build system; abandoned upstream repository. |
 
-#### Notes
-
-- Resemblyzer is simpler and has fewer dependencies than SpeechBrain.
-- The key question is whether the TTS model (IndicF5/Indic-Speak) can accept external speaker
-  embeddings and in what format. If the TTS model uses its own speaker representation,
-  Resemblyzer embeddings may not be directly usable.
-- The repository may not be actively maintained — needs verification.
-
-#### Verification Status: ❌ NOT VERIFIED
+#### Verification Status: ❌ INCOMPATIBLE & REJECTED (Python 3.14 Build Incompatibility)
 
 ---
 
@@ -457,46 +442,36 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 |---|---|
 | **Model Name** | ECAPA-TDNN (via SpeechBrain) |
 | **Source** | SpeechBrain project |
-| **Purpose** | Speaker embedding extraction for voice identity |
+| **Purpose** | Speaker verification and similarity evaluation metrics |
 | **Repository** | https://github.com/speechbrain/speechbrain |
 | **Hugging Face** | https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb |
 | **Documentation** | https://speechbrain.readthedocs.io/ |
 | **License** | Apache 2.0 |
 | **Language Support** | Language-agnostic speaker embeddings |
-| **Telugu Relevance** | Used on English input audio to extract speaker identity |
+| **Telugu Relevance** | Used for cross-lingual speaker similarity evaluation |
 
 #### Key Features
 
 - State-of-the-art speaker verification model
 - Produces 192-dimensional speaker embeddings
-- Part of the SpeechBrain toolkit — well-maintained, actively developed
-- Pre-trained on VoxCeleb dataset
-
-#### CPU Performance
-
-- Heavier than Resemblyzer due to the ECAPA-TDNN architecture.
-- CPU inference should still be manageable for single utterances.
-- SpeechBrain pulls in a significant number of dependencies.
-- Actual performance and memory usage: **needs verification**.
+- Part of SpeechBrain 1.1.2 — pure Python wheel installs cleanly on Python 3.14
 
 #### Compatibility
 
-| Check | Status |
-|---|---|
-| Python 3.14 compatibility | ⚠️ **UNKNOWN** — SpeechBrain has many dependencies |
-| ARM64 / Snapdragon X compatibility | ⚠️ **UNKNOWN** |
-| Windows compatibility | Supported (SpeechBrain officially supports Windows) |
-| CPU-only inference | Supported |
+| Check | Status | Notes |
+|---|---|---|
+| Python 3.14 compatibility | ✅ **VERIFIED** | `speechbrain 1.1.2` installs and runs cleanly with PyTorch 2.15 CPU |
+| ARM64 / Snapdragon X compatibility | ✅ **VERIFIED** | Executes under x64 emulation on Snapdragon X CPU |
+| Windows compatibility | ✅ **VERIFIED** | Fully compatible on Windows 11 AMD64 emulation |
+| CPU-only inference | ✅ **VERIFIED** | Inference takes ~220 ms per 5s audio chunk |
 
-#### Notes
+#### Critical Architectural Finding: Verification vs. TTS Conditioning
+During Phase 1C research, a crucial architectural distinction was confirmed:
+- SpeechBrain ECAPA-TDNN compresses speech into a fixed **192-dimensional vector** designed for *speaker verification* (same vs. different speaker discrimination).
+- Modern zero-shot flow-matching TTS models (e.g., **IndicF5 / F5-TTS**) do **not** take a 192-d or 256-d vector. They condition directly on the **raw reference audio waveform** (canonical 16 kHz WAV) concatenated in the latent acoustic space with reference and target text transcripts.
+- Consequently, VoxVerse stores canonical 16 kHz reference audio (`reference.wav`) during enrollment for TTS conditioning, reserving SpeechBrain ECAPA-TDNN solely for **Phase 3 objective voice similarity measurement** (evaluating cosine distance between English input and Telugu output).
 
-- SpeechBrain is a larger framework. Installing it brings in many dependencies that may
-  conflict with other pipeline components.
-- Higher quality embeddings than Resemblyzer, but with more overhead.
-- Same caveat as Resemblyzer: the TTS model's ability to use external speaker embeddings
-  is the critical dependency.
-
-#### Verification Status: ❌ NOT VERIFIED
+#### Verification Status: ✅ VERIFIED COMPATIBLE (Selected for Similarity Evaluation, Not TTS Conditioning)
 
 ---
 

@@ -159,23 +159,21 @@ unresolved_decisions:
       Produce sample outputs for team review.
 
   - id: UD-04
-    tag: "[UNRESOLVED]"
-    area: Voice Cloning
-    owner: P3
-    title: Voice embedding extraction method
-    description: >
-      How to extract speaker embeddings from the source English audio for
-      voice cloning? Options include using a pre-trained speaker
-      verification model (e.g., SpeechBrain ECAPA-TDNN, Resemblyzer) or
-      relying on the TTS engine's built-in speaker conditioning. This
-      choice depends on UD-03 (TTS selection).
+    tag: "[RESOLVED]"
+    area: Voice Representation & Conditioning
+    owner: P1 / P3
+    title: Voice reference and embedding extraction method
+    resolution: >
+      RESOLVED in Phase 1C: Resemblyzer evaluated as INCOMPATIBLE with Python 3.14 (webrtcvad C build failure).
+      SpeechBrain 1.1.2 verified COMPATIBLE on Python 3.14 CPU (192-d ECAPA-TDNN). However, research confirms
+      that modern zero-shot flow-matching TTS (IndicF5 / F5-TTS) requires the raw 16 kHz reference audio waveform
+      and reference text rather than a fixed 1D vector. Therefore, VoxVerse stores canonical reference WAV during
+      enrollment for TTS conditioning, reserving SpeechBrain ECAPA-TDNN strictly for Phase 3 objective voice similarity
+      evaluation. See docs/PHASE_1C_SPEAKER_ENROLLMENT.md.
     options:
-      - "SpeechBrain ECAPA-TDNN — Well-established, separate extraction step"
-      - "Resemblyzer            — Lightweight, easy to integrate"
-      - "TTS-native conditioning — Use the selected TTS engine's built-in method"
-    action: >
-      P3 to investigate after UD-03 is resolved. Document the embedding
-      format, dimensionality, and storage requirements.
+      - "TTS-native reference audio conditioning (canonical 16 kHz WAV) — SELECTED PRIMARY FOR TTS"
+      - "SpeechBrain ECAPA-TDNN (192-d) — SELECTED FOR SIMILARITY EVALUATION METRIC"
+      - "Resemblyzer (256-d) — REJECTED (Incompatible with Python 3.14)"
 
   - id: UD-05
     tag: "[RESOLVED - Phase 1A]"

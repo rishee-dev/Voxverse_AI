@@ -136,8 +136,9 @@ class SileroVADDetector:
         total_samples = flat_audio.size
         audio_duration_sec = total_samples / float(REQUIRED_SAMPLE_RATE)
 
-        # Prepare ONNX state and sample rate input
+        # Prepare ONNX state, context (64 samples required by Silero VAD v5), and sample rate input
         state = np.zeros(RECURRENT_STATE_SHAPE, dtype=np.float32)
+        context = np.zeros((1, 64), dtype=np.float32)
         sr_tensor = np.array(REQUIRED_SAMPLE_RATE, dtype=np.int64)
 
         t_start = time.perf_counter()
@@ -151,11 +152,14 @@ class SileroVADDetector:
                     chunk = np.pad(chunk, (0, WINDOW_SIZE_SAMPLES - len(chunk)))
 
                 chunk = chunk.reshape(1, WINDOW_SIZE_SAMPLES)
+                # Silero VAD v5 expects input of shape (batch, 64 + 512) = (1, 576)
+                inp = np.concatenate([context, chunk], axis=1)
                 out, state = self.session.run(
                     None,
-                    {"input": chunk, "state": state, "sr": sr_tensor},
+                    {"input": inp, "state": state, "sr": sr_tensor},
                 )
                 prob = float(out[0][0])
+                context = inp[:, -64:]
                 time_ms = (offset / float(REQUIRED_SAMPLE_RATE)) * 1000.0
                 chunk_probs.append((time_ms, prob))
 

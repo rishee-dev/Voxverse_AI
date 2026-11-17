@@ -1,15 +1,8 @@
-"""
-VoxVerse Storage — Storage abstractions for audio and voice data.
+"""VoxVerse storage layer — Local storage and persistence abstractions (P4 & P1).
 
-Provides a storage abstraction layer supporting:
-- Local filesystem storage (development)
-- Cloud object storage (production: GCS, S3, etc.)
-- Audio file management (upload, retrieval, deletion)
-- Voice profile persistence (embeddings, metadata)
-- Temporary file handling and cleanup
-
-Storage paths are configurable via the config module and default
-to the project-level storage/ directory for local development.
+Owner: P4 — Pipeline Engineer & P1 — Audio/Speaker Engineer
 """
 
-__all__: list[str] = []
+from voxverse.storage.voice_storage import VoiceProfileStorage
+
+__all__ = ["VoiceProfileStorage"]

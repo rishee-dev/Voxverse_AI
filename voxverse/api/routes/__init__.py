@@ -1,11 +1,10 @@
-"""
-VoxVerse API Routes — HTTP endpoint handlers.
+"""VoxVerse API Routes — HTTP endpoint handlers.
 
 Contains FastAPI router modules organized by domain:
-- Audio upload and management endpoints
-- Translation job submission and status endpoints
-- Voice profile enrollment and retrieval endpoints
-- Health check and system status endpoints
+- Health check and system status endpoints (health, info)
+- Voice profile enrollment, retrieval, and deletion lifecycle (voices)
 """
 
-__all__: list[str] = []
+from voxverse.api.routes import health, info, voices
+
+__all__ = ["health", "info", "voices"]

@@ -1,19 +1,52 @@
-"""
-VoxVerse GenAI Speaker — Voice enrollment and profile management (P1).
+"""VoxVerse GenAI Speaker — Voice enrollment, affirmative consent, and profile lifecycle (P1).
 
-Owner: P1
-
-Responsibilities:
-- Speaker voice enrollment from validated reference audio
-- Explicit consent verification and audit metadata recording
-- Speaker representation extraction for voice conditioning
-- Secure voice profile storage and retrieval
-- Voice profile deletion lifecycle support
-- Embedding similarity computation for speaker verification
-
-Voice profiles are stored alongside consent records and technical metadata
-(sample rate, duration, enrollment timestamp, audio quality assessment).
-Never commit or expose unauthorized speaker representations.
+Owner: P1 — Audio and Speaker Profile Engineer
 """
 
-__all__: list[str] = []
+from voxverse.genai.speaker.exceptions import (
+    ConsentRequiredError,
+    ConsentRevokedError,
+    EnrollmentValidationError,
+    InvalidConsentError,
+    PathTraversalError,
+    ProfileDeletionError,
+    ProfileNotFoundError,
+    SpeakerError,
+    UnauthorizedProfileAccessError,
+)
+from voxverse.genai.speaker.schemas import (
+    ConsentPurpose,
+    ConsentRecord,
+    ConsentStatus,
+    DeletionResult,
+    EnrollmentStatus,
+    EnrollmentValidationReport,
+    VoiceEnrollmentRequest,
+    VoiceProfile,
+    VoiceProfileMetadata,
+)
+from voxverse.genai.speaker.service import SpeakerProfileService
+from voxverse.genai.speaker.validator import EnrollmentValidator
+
+__all__ = [
+    "ConsentPurpose",
+    "ConsentRecord",
+    "ConsentRequiredError",
+    "ConsentRevokedError",
+    "ConsentStatus",
+    "DeletionResult",
+    "EnrollmentStatus",
+    "EnrollmentValidationError",
+    "EnrollmentValidationReport",
+    "EnrollmentValidator",
+    "InvalidConsentError",
+    "PathTraversalError",
+    "ProfileDeletionError",
+    "ProfileNotFoundError",
+    "SpeakerError",
+    "SpeakerProfileService",
+    "UnauthorizedProfileAccessError",
+    "VoiceEnrollmentRequest",
+    "VoiceProfile",
+    "VoiceProfileMetadata",
+]

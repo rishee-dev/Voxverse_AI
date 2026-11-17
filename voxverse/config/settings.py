@@ -131,6 +131,32 @@ class Settings(BaseSettings):
         default="temp",
         description="Directory name (relative to project_root) for temporary files.",
     )
+    storage_dir: str = Field(
+        default="storage",
+        description="Directory name (relative to project_root) for persistent storage.",
+    )
+    voices_dir: str = Field(
+        default="voices",
+        description="Subdirectory name inside storage_dir for speaker voice profiles.",
+    )
+
+    # ── Speaker Enrollment & Privacy ─────────────────────────────────────
+    speaker_consent_required: bool = Field(
+        default=True,
+        description="Whether explicit affirmative consent is mandatory for speaker enrollment.",
+    )
+    min_enrollment_duration_seconds: float = Field(
+        default=3.0,
+        description="Minimum total duration in seconds for enrollment audio.",
+    )
+    max_enrollment_duration_seconds: float = Field(
+        default=60.0,
+        description="Maximum total duration in seconds for enrollment audio.",
+    )
+    min_speech_duration_seconds: float = Field(
+        default=1.5,
+        description="Minimum usable human speech duration in seconds detected via VAD.",
+    )
 
     # ── Audio ────────────────────────────────────────────────────────────
     max_audio_size_mb: Annotated[int, Field(ge=1)] = Field(
@@ -205,13 +231,23 @@ class Settings(BaseSettings):
         return self.project_root / self.temp_dir
 
     @property
+    def storage_path(self) -> Path:
+        """Absolute path to the persistent storage directory."""
+        return self.project_root / self.storage_dir
+
+    @property
+    def voices_path(self) -> Path:
+        """Absolute path to the speaker voice profiles directory."""
+        return self.storage_path / self.voices_dir
+
+    @property
     def max_audio_size_bytes(self) -> int:
         """Maximum audio file size in bytes."""
         return self.max_audio_size_mb * 1024 * 1024
 
     def ensure_directories(self) -> None:
-        """Create upload, output, and temp directories if they do not exist."""
-        for path in (self.upload_path, self.output_path, self.temp_path):
+        """Create upload, output, temp, storage, and voices directories if they do not exist."""
+        for path in (self.upload_path, self.output_path, self.temp_path, self.storage_path, self.voices_path):
             path.mkdir(parents=True, exist_ok=True)
 
 
