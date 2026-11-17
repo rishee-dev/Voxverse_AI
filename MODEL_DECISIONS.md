@@ -161,76 +161,64 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 
 ## Translation Candidates
 
-### AI4Bharat IndicTrans2
+### AI4Bharat IndicTrans2 (200M Distilled with Rotary Embeddings)
 
 | Field | Details |
 |---|---|
-| **Model Name** | IndicTrans2 |
-| **Source** | AI4Bharat (IIT Madras) |
+| **Model Name** | IndicTrans2 200M Distilled (Rotary / RoPE) |
+| **Source** | AI4Bharat (IIT Madras) / Dr. Raj Dabre |
 | **Purpose** | English-to-Telugu text translation |
 | **Repository** | https://github.com/AI4Bharat/IndicTrans2 |
 | **Paper** | https://arxiv.org/abs/2305.16307 |
-| **Hugging Face** | https://huggingface.co/ai4bharat/indictrans2-en-indic-1B |
-| **License** | MIT |
-| **Language Support** | 22 Indic languages including **Telugu (te)** |
-| **Telugu Relevance** | Direct en→te translation is a primary supported pair |
+| **Hugging Face** | https://huggingface.co/prajdabre/rotary-indictrans2-en-indic-dist-200M |
+| **License** | MIT License |
+| **Language Support** | 22 Indic languages including **Telugu (tel_Telu)** |
+| **Telugu Relevance** | Direct en→te translation (`eng_Latn` -> `tel_Telu`) |
 
-#### Model Variants
+#### Empirical CPU Benchmark on Qualcomm Snapdragon X (FLORES-200 devtest, 50 sentences)
 
-| Variant | Parameters | Direction | Telugu Support |
-|---|---|---|---|
-| indictrans2-en-indic-1B | 1.1B | English → Indic (all 22) | ✅ Yes |
-| indictrans2-en-indic-dist-200M | 200M | English → Indic (all 22) | ✅ Yes |
-| indictrans2-indic-en-1B | 1.1B | Indic → English | N/A for our use |
-| indictrans2-indic-indic-1B | 1.1B | Indic ↔ Indic | N/A for our use |
-
-> [!NOTE]
-> The **200M distilled model** (`indictrans2-en-indic-dist-200M`) is the primary candidate for
-> CPU deployment due to its significantly smaller size. The 1.1B model may be too large for
-> comfortable CPU inference on 16 GB RAM alongside other pipeline models.
-
-#### CPU Performance
-
-- Based on the Transformer architecture; CPU inference speed scales with model size.
-- The 200M distilled model should be significantly faster than the 1.1B model on CPU.
-- Actual inference time per sentence: **needs verification**.
-- Memory usage with all models loaded (ASR + Translation + TTS): **needs verification** —
-  16 GB RAM may be tight with the 1.1B variant.
-
-#### Dependencies
-
-- Requires `sentencepiece` for tokenization
-- Requires the IndicTrans2 tokenizer/preprocessing scripts from the repository
-- May require custom preprocessing code (the repository provides scripts, not a pip-installable
-  package as of last check)
-
-#### Integration Complexity
-
-- IndicTrans2 is **not a simple pip install**. Integration requires:
-  1. Downloading the model from Hugging Face
-  2. Setting up the IndicTrans2 tokenizer and preprocessing pipeline
-  3. Writing custom inference code using the Hugging Face Transformers library
-  4. Handling the source/target language tag format required by the model
-- The repository provides example inference scripts that can serve as a reference.
+| Configuration | Parameters | Precision | Peak Process RAM | SacreBLEU | chrF | chrF++ | Avg CPU Latency | Status |
+|---|---|---|---|---|---|---|---|---|
+| **IndicTrans2 200M Distilled** | **211.8 M** | **Float32 CPU** | **1,253.2 MB** | **29.80** | **65.82** | **61.26** | **16.43s / sent** (1.1s for short) | **SELECTED PRODUCTION ENGINE** |
 
 #### Compatibility
 
-| Check | Status |
+| Check | Status | Notes |
+|---|---|---|
+| Python 3.14 compatibility | ✅ **VERIFIED** | Runs on `transformers 4.57.6` and `sentencepiece 0.2.3` |
+| ARM64 / Snapdragon X compatibility | ✅ **VERIFIED** | PyTorch CPU executes without instruction faults under x64 emulation |
+| Windows compatibility | ✅ **VERIFIED** | Windows 11 AMD64 emulation confirmed |
+| CPU-only inference | ✅ **VERIFIED** | Inference takes ~1.1s for short conversational sentences |
+
+#### Notes & Findings
+
+- Windows MSVC compilation incompatibility with `IndicTransToolkit` was resolved by authoring a pure Python `IndicTransTextNormalizer` utilizing `sacremoses` and `indic-nlp-library`.
+- Transformers v5 breaking changes were resolved by pinning `transformers>=4.40,<5.0.0` and using `use_cache=False`.
+- High translation naturalness and grammatical correctness verified against official FLORES-200 ground truth (see [PHASE_2_TRANSLATION_ENGINE.md](docs/PHASE_2_TRANSLATION_ENGINE.md)).
+
+#### Verification Status: ✅ VERIFIED & SELECTED AS PRODUCTION ENGINE
+
+---
+
+### Bodhan AI Indic-Translate (Candidate Evaluation)
+
+| Field | Details |
 |---|---|
-| Python 3.14 compatibility | ⚠️ **UNKNOWN** — depends on transformers, sentencepiece compatibility |
-| ARM64 / Snapdragon X compatibility | ⚠️ **UNKNOWN** — pure Python + PyTorch, likely works under emulation |
-| Windows compatibility | ⚠️ **UNKNOWN** — repository primarily tested on Linux |
-| CPU-only inference | Supported (PyTorch CPU backend) |
+| **Model Name** | Indic-Translate |
+| **Source** | Bodhan AI (IIT Madras CoE / MoE) |
+| **Purpose** | English-to-Indic translation |
+| **Hugging Face** | https://huggingface.co/bodhan-ai/indic-translate |
+| **License** | Custom Gated Model License |
+| **Parameter Scale** | ~4B effective parameters (~8B footprint) |
+| **Hardware Requirement** | >16 GB RAM / High-end GPU |
 
-#### Notes
+#### Evaluation Findings
 
-- IndicTrans2 is widely considered one of the best open-source translation models for Indian
-  languages. It was developed at IIT Madras with significant research backing.
-- The model uses language tags to specify source and target languages. For English→Telugu:
-  source tag is typically not needed (English-only encoder), target tag is `tel_Telu`.
-- Translation quality for en→te: **needs verification with representative test sentences**.
+- Evaluated during Phase 2 as an alternative referenced on Hugging Face.
+- **Incompatible with local CPU hardware target:** With 15.6 GB total RAM and ~2.3 GB free memory, an 8B LLM model cannot be loaded without fatal out-of-memory aborts or extreme thrashing.
+- **Decision:** Rejected for local CPU MVP; documented for future Cloud GPU deployment.
 
-#### Verification Status: ❌ NOT VERIFIED
+#### Verification Status: ❌ REJECTED FOR LOCAL CPU MVP (Hardware Budget Incompatible)
 
 ---
 

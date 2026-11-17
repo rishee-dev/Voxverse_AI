@@ -1,17 +1,52 @@
-"""
-VoxVerse GenAI Translation — English-to-Telugu text translation (P2).
+"""VoxVerse translation package for English-to-Indic neural machine translation.
 
-Owner: P2
-
-Responsibilities:
-- English-to-Telugu machine translation
-- Support for multiple translation backends (IndicTrans, Google Translate API, etc.)
-- Translation quality estimation and confidence scoring
-- Handling of transliteration and script conversion
-- Context-aware translation with segment-level coherence
-
-The translation module receives English text from the ASR module (P2)
-and produces Telugu text for the TTS module (P3).
+Owner: P2 — Speech Understanding Engineer (Translation & NLP)
 """
 
-__all__: list[str] = []
+from __future__ import annotations
+
+from voxverse.genai.translation.base import BaseTranslationEngine
+from voxverse.genai.translation.exceptions import (
+    EmptyInputError,
+    InferenceError,
+    ModelLoadError,
+    PreprocessingError,
+    TextLengthExceededError,
+    TranslationError,
+    UnsupportedLanguageError,
+)
+from voxverse.genai.translation.indictrans2_engine import IndicTrans2Engine
+from voxverse.genai.translation.metrics import compute_translation_metrics
+from voxverse.genai.translation.schemas import (
+    EvaluationMetricsResult,
+    SUPPORTED_SOURCE_LANGUAGES,
+    SUPPORTED_TARGET_LANGUAGES,
+    TranslationModelInfo,
+    TranslationRequest,
+    TranslationResult,
+    TranslationSegment,
+)
+from voxverse.genai.translation.service import TranslationService
+from voxverse.genai.translation.text_normalizer import IndicTransTextNormalizer
+
+__all__ = [
+    "BaseTranslationEngine",
+    "EmptyInputError",
+    "EvaluationMetricsResult",
+    "IndicTrans2Engine",
+    "IndicTransTextNormalizer",
+    "InferenceError",
+    "ModelLoadError",
+    "PreprocessingError",
+    "SUPPORTED_SOURCE_LANGUAGES",
+    "SUPPORTED_TARGET_LANGUAGES",
+    "TextLengthExceededError",
+    "TranslationError",
+    "TranslationModelInfo",
+    "TranslationRequest",
+    "TranslationResult",
+    "TranslationSegment",
+    "TranslationService",
+    "UnsupportedLanguageError",
+    "compute_translation_metrics",
+]

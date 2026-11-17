@@ -18,7 +18,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from voxverse.api.routes import health, info, voices
+from voxverse.api.routes import health, info, translation, voices
 from voxverse.api.schemas import ErrorDetail, ErrorResponse
 from voxverse.config.logging import get_logger, get_request_id, set_request_id, setup_logging
 from voxverse.config.settings import get_settings
@@ -198,6 +198,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(info.router)
     app.include_router(voices.router)
+    app.include_router(translation.router)
 
     return app
 
