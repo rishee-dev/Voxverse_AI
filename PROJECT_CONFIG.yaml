@@ -138,23 +138,24 @@ unresolved_decisions:
       - "Bodhan AI Indic-Translate (4B/8B) — REJECTED FOR CPU MVP (Hardware budget incompatible)"
 
   - id: UD-03
-    tag: "[UNRESOLVED]"
+    tag: "[RESOLVED]"
     area: TTS
     owner: P3
     title: IndicF5 vs Indic-Speak TTS engine selection
-    description: >
-      Two candidate TTS systems for Telugu synthesis with voice cloning
-      capability need evaluation: IndicF5 (fine-tuned F5-TTS for Indic
-      languages) and Indic-Speak. Key criteria: Telugu voice quality,
-      voice cloning fidelity, CPU inference speed, and Python 3.14
-      compatibility.
+    resolution: >
+      RESOLVED in Phase 3A: Comprehensive research and hardware feasibility evaluation completed.
+      AI4Bharat IndicF5 (ai4bharat/IndicF5, 300M Flow-Matching DiT, 1.34 GB safetensors, MIT License)
+      selected as the primary candidate for Phase 3B proof-of-concept. Evaluated zero-shot cross-lingual
+      speaker conditioning (English ref audio + verbatim transcript -> Telugu speech). Hardware analysis
+      confirms feasibility on Qualcomm Snapdragon X CPU (RTF ~1.8-3.5 for nfe=16-32; peak RAM ~3.15 GB).
+      Bodhan AI Indic-Speak (bodhan-ai/indic-speak, 3.2B params, 6.3 GB) formally REJECTED because it explicitly
+      does not support voice cloning (fixed 45 voice artists only) and exceeds CPU memory limits. Meta MMS-TTS
+      Telugu (facebook/mms-tts-tel, 138 MB VITS, RTF ~0.05) designated as lightweight CPU fallback engine.
+      See docs/PHASE_3A_TTS_MODEL_FEASIBILITY.md.
     options:
-      - "IndicF5    — F5-TTS fine-tuned for Indic languages"
-      - "Indic-Speak — Alternative Indic TTS system"
-    action: >
-      P3 to evaluate both systems on Telugu synthesis quality, voice
-      cloning accuracy (MOS, speaker similarity), and CPU latency.
-      Produce sample outputs for team review.
+      - "AI4Bharat IndicF5 (Flow-Matching DiT, 1.34 GB, MIT) — SELECTED FOR PHASE 3B PROOF-OF-CONCEPT"
+      - "Meta MMS-TTS Telugu (VITS, 138 MB, Sub-second) — DESIGNATED LIGHTWEIGHT CPU FALLBACK"
+      - "Bodhan AI Indic-Speak (3.2B LLM, 6.3 GB) — REJECTED (No voice cloning feature; hardware budget incompatible)"
 
   - id: UD-04
     tag: "[RESOLVED]"
