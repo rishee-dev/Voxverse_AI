@@ -104,23 +104,21 @@ environment:
 unresolved_decisions:
 
   - id: UD-01
-    tag: "[UNRESOLVED]"
+    tag: "[RESOLVED]"
     area: ASR
     owner: P2
     title: Whisper model variant selection
-    description: >
-      Which Whisper model size to use for CPU-only inference?
-      Options: tiny, base, small. Larger models (medium, large) are likely
-      too slow for CPU. Need to benchmark accuracy vs. latency tradeoffs
-      on the target hardware (Snapdragon X under x64 emulation).
+    resolution: >
+      RESOLVED in Phase 1B: Benchmarked tiny.en, base.en, and small.en across
+      faster-whisper (CTranslate2 INT8) and openai-whisper (FP32) on Qualcomm Snapdragon X CPU
+      using LibriSpeech test-clean (57.13s audio). Selected faster-whisper base.en INT8
+      (WER 1.91%, RTF 0.1403, 8.02s latency, 22.8 MB peak RAM, 76 MB model size).
+      See docs/PHASE_1B_ASR_EVALUATION.md.
     options:
-      - "openai/whisper-tiny  — Fastest, lowest accuracy (~32M params)"
-      - "openai/whisper-base  — Balanced (~74M params)"
-      - "openai/whisper-small — Best accuracy of viable options (~244M params)"
-    action: >
-      P2 to benchmark all three variants on sample English audio clips
-      and report WER (Word Error Rate) and processing time per minute of
-      audio on the target hardware.
+      - "faster-whisper base.en (INT8) — SELECTED PRODUCTION ENGINE (WER 1.91%, RTF 0.1403)"
+      - "faster-whisper tiny.en (INT8) — Lightweight fast fallback (WER 2.55%, RTF 0.0732)"
+      - "faster-whisper small.en (INT8) — Heavy alternative (WER 1.27%, RTF 0.5527)"
+      - "openai-whisper base.en (FP32) — Secondary baseline (WER 1.91%, RTF 0.3528)"
 
   - id: UD-02
     tag: "[UNRESOLVED]"

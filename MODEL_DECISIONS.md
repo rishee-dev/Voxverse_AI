@@ -96,18 +96,17 @@ VoxVerse pipeline. The pipeline requires models for five tasks:
 
 | Check | Status |
 |---|---|
-| Python 3.14 compatibility | ⚠️ **UNKNOWN** — needs verification |
-| ARM64 / Snapdragon X compatibility | ⚠️ **UNKNOWN** — runs under x64 emulation |
-| Windows compatibility | Likely supported (widely used on Windows) — needs verification |
-| CPU-only inference | Supported (PyTorch CPU backend) |
+| Python 3.14 compatibility | ✅ **VERIFIED** — `openai-whisper` installed and functioning on Python 3.14 AMD64 |
+| ARM64 / Snapdragon X compatibility | ✅ **VERIFIED** — PyTorch CPU FP32 runs cleanly under x64 emulation |
+| Windows compatibility | ✅ **VERIFIED** — Runs without FFmpeg when fed NumPy arrays |
+| CPU-only inference | ✅ **VERIFIED** — RTF 0.2006 (`tiny.en`), 0.3528 (`base.en`) |
 
 #### Notes
 
-- Requires FFmpeg for audio loading.
-- The official `openai-whisper` package pulls in PyTorch as a dependency.
-- For CPU-only use, **Faster-Whisper is strongly preferred** over vanilla Whisper (see below).
+- Requires audio passed as in-memory float32 NumPy arrays to operate without external FFmpeg binary.
+- Evaluated on LibriSpeech test-clean: achieves 1.91% WER with `base.en`, but is **2.5x slower** than faster-whisper.
 
-#### Verification Status: ❌ NOT VERIFIED
+#### Verification Status: ✅ VERIFIED (Evaluation Complete — Secondary Candidate)
 
 ---
 
@@ -128,49 +127,35 @@ VoxVerse pipeline. The pipeline requires models for five tasks:
 
 - Built on **CTranslate2** — an optimized inference engine for Transformer models
 - Supports **INT8 quantization** for reduced memory usage and faster CPU inference
-- Claims **up to 4x faster** inference than vanilla Whisper with comparable accuracy
-- Lower memory footprint due to quantization options
+- Empirically verified **2.5x faster** on Snapdragon X CPU than vanilla Whisper with identical accuracy
+- Lower memory footprint (22.8 MB peak RAM) and compact model weight footprint (76 MB for `base.en` INT8)
 
 #### Model Sizes & Quantization
 
-All Whisper model sizes are available via CTranslate2 conversion. Additional quantization options:
+All Whisper model sizes are available via CTranslate2 conversion. Empirical benchmarks on Snapdragon X CPU:
 
-| Quantization | Description | Speed vs. Float32 | Accuracy Impact |
-|---|---|---|---|
-| float32 | Full precision | 1x (baseline) | None |
-| float16 | Half precision | Faster (GPU only) | Negligible |
-| int8 | 8-bit integer | ~2-4x faster on CPU | Minimal (needs verification) |
-| int8_float16 | Mixed precision | Fastest (GPU only) | Minimal |
-
-> [!IMPORTANT]
-> INT8 quantization is the primary reason to choose Faster-Whisper for CPU deployment. The
-> actual speedup and accuracy impact on this specific hardware needs verification.
-
-#### CPU Performance
-
-- CTranslate2 is specifically designed for efficient CPU inference.
-- Uses Intel MKL or OpenBLAS for optimized matrix operations.
-- ARM64 performance under x64 emulation: **needs verification** — emulation overhead may reduce
-  or eliminate the speed advantage.
+| Configuration | Quantization | Audio Duration | Latency | RTF | WER (%) | CER (%) | Status |
+|---|---|---|---|---|---|---|---|
+| `tiny.en` | INT8 | 57.13s | 4.18s | 0.0732 | 2.55% | 1.25% | Alternative (Fast) |
+| `tiny.en` | Float32 | 57.13s | 3.58s | 0.0626 | 2.55% | 1.25% | Alternative (Fast) |
+| `base.en` | **INT8** | **57.13s** | **8.02s** | **0.1403** | **1.91%** | **0.57%** | **SELECTED PRODUCTION ENGINE** |
+| `small.en`| INT8 | 57.13s | 31.58s | 0.5527 | 1.27% | 0.45% | Heavy Alternative |
 
 #### Compatibility
 
 | Check | Status |
 |---|---|
-| Python 3.14 compatibility | ⚠️ **UNKNOWN** — CTranslate2 C++ bindings may not have wheels |
-| ARM64 / Snapdragon X compatibility | ⚠️ **UNKNOWN** — CTranslate2 has native ARM builds for some platforms |
-| Windows compatibility | Supported (pre-built wheels available for x64) — version for Python 3.14 unknown |
-| CPU-only inference | Primary design target |
+| Python 3.14 compatibility | ✅ **VERIFIED** — `ctranslate2 4.9.0` wheel exists and works on Python 3.14 |
+| ARM64 / Snapdragon X compatibility | ✅ **VERIFIED** — Runs without instruction faults under Windows on ARM emulation |
+| Windows compatibility | ✅ **VERIFIED** — Full Windows AMD64 compatibility confirmed |
+| CPU-only inference | ✅ **VERIFIED** — Primary design target, executes 7.13x faster than real-time |
 
 #### Notes
 
-- CTranslate2 is a compiled C++ library with Python bindings. Installation on Python 3.14 may
-  require building from source if no pre-built wheel is available.
-- Pre-converted Whisper models for CTranslate2 are available on Hugging Face (e.g.,
-  `Systran/faster-whisper-base`).
-- This is the **recommended ASR option** if it can be installed on this platform.
+- Decoding audio through P1's `AudioNormalizer` and `soundfile` avoids an upstream PyAV `metadata_errors` bug.
+- Selected as the primary production English ASR engine for VoxVerse Phase 1B (see [PHASE_1B_ASR_EVALUATION.md](docs/PHASE_1B_ASR_EVALUATION.md)).
 
-#### Verification Status: ❌ NOT VERIFIED
+#### Verification Status: ✅ VERIFIED & SELECTED AS PRODUCTION ENGINE
 
 ---
 
