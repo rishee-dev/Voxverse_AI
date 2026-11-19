@@ -17,9 +17,22 @@ Never substitute ordinary TTS and claim that voice cloning was achieved.
 from __future__ import annotations
 
 from voxverse.genai.tts.base import BaseTTSEngine
+from voxverse.genai.tts.benchmarks import (
+    TELUGU_TTS_BENCHMARKS,
+    TeluguBenchmarkSentence,
+    get_benchmark_suite,
+)
+from voxverse.genai.tts.config import MemoryAdmissionStatus, TTSConfig
 from voxverse.genai.tts.exceptions import (
+    ConcurrentRequestError,
+    GatedRepositoryError,
+    InferenceTimeoutError,
+    InvalidAudioOutputError,
+    MemoryAdmissionError,
+    MissingCheckpointError,
     MissingConsentError,
     MissingReferenceTranscriptError,
+    MissingVocoderError,
     ModelLoadError,
     ReferenceAudioError,
     SynthesisError,
@@ -28,26 +41,52 @@ from voxverse.genai.tts.exceptions import (
     UnsupportedEngineError,
     VoiceProfileNotFoundError,
 )
+from voxverse.genai.tts.indicf5_engine import IndicF5Engine
+from voxverse.genai.tts.model_loader import TTSModelLoader
 from voxverse.genai.tts.schemas import (
     SpeakerConditioningData,
     TTSModelInfo,
     TTSRequest,
     TTSResult,
 )
+from voxverse.genai.tts.service import TTSService
+from voxverse.genai.tts.validator import (
+    validate_audio_output,
+    validate_reference_audio,
+    validate_telugu_text,
+)
 
 __all__: list[str] = [
     "BaseTTSEngine",
+    "ConcurrentRequestError",
+    "GatedRepositoryError",
+    "IndicF5Engine",
+    "InferenceTimeoutError",
+    "InvalidAudioOutputError",
+    "MemoryAdmissionError",
+    "MemoryAdmissionStatus",
+    "MissingCheckpointError",
     "MissingConsentError",
     "MissingReferenceTranscriptError",
+    "MissingVocoderError",
     "ModelLoadError",
     "ReferenceAudioError",
     "SpeakerConditioningData",
     "SynthesisError",
+    "TELUGU_TTS_BENCHMARKS",
+    "TTSConfig",
     "TTSError",
     "TTSModelInfo",
+    "TTSModelLoader",
     "TTSRequest",
     "TTSResult",
+    "TTSService",
+    "TeluguBenchmarkSentence",
     "TeluguScriptValidationError",
     "UnsupportedEngineError",
     "VoiceProfileNotFoundError",
+    "get_benchmark_suite",
+    "validate_audio_output",
+    "validate_reference_audio",
+    "validate_telugu_text",
 ]
