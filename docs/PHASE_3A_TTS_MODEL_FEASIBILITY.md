@@ -167,14 +167,20 @@ $$\text{Latency} = N_{\text{steps}} \times T_{\text{forward}}(\text{DiT}) + T_{\
 
 Estimated timings for generating a **5-second Telugu speech utterance** on Snapdragon X (8 CPU threads):
 
-| ODE Steps ($N$) | DiT Forward Pass Time | ODE Solver Total | Vocoder (Vocos) | Total Latency | Estimated RTF | Audio Quality & Similarity |
-|:---|:---|:---|:---|:---|:---|:---|
-| **8 steps (Fast)** | ~550 ms / step | ~4.4 s | ~180 ms | **~4.6 s** | **0.92** | Noticeable high-frequency fuzz; acceptable intelligibility. |
-| **16 steps (Balanced)**| ~550 ms / step | ~8.8 s | ~180 ms | **~9.0 s** | **1.80** | Good voice clarity; strong speaker similarity. **(Recommended default)** |
-| **32 steps (High-Fi)** | ~550 ms / step | ~17.6 s | ~180 ms | **~17.8 s** | **3.56** | Pristine audio; maximum cross-lingual timbre preservation. |
-| **64 steps (Extreme)** | ~550 ms / step | ~35.2 s | ~180 ms | **~35.4 s** | **7.08** | Diminishing returns; unnecessary compute overhead. |
+| ODE Steps ($N$) | DiT Forward Pass Time | ODE Solver Total | Vocoder (Vocos) | Theoretical Latency | Theoretical RTF | Emulation-Buffered Latency Estimate | Audio Quality & Similarity |
+|:---|:---|:---|:---|:---|:---|:---|:---|
+| **8 steps (Fast)** | ~550 ms / step | ~4.4 s | ~180 ms | **~4.6 s** | **0.92** | **~5.5 – 7.0 s** ($\text{RTF } 1.1–1.4$) | Noticeable high-frequency fuzz; acceptable intelligibility. |
+| **16 steps (Balanced)**| ~550 ms / step | ~8.8 s | ~180 ms | **~9.0 s** | **1.80** | **~10.0 – 14.0 s** ($\text{RTF } 2.0–2.8$) | Good voice clarity; strong speaker similarity. **(Recommended default)** |
+| **32 steps (High-Fi)** | ~550 ms / step | ~17.6 s | ~180 ms | **~17.8 s** | **3.56** | **~19.0 – 25.0 s** ($\text{RTF } 3.8–5.0$) | Pristine audio; maximum cross-lingual timbre preservation. |
+| **64 steps (Extreme)** | ~550 ms / step | ~35.2 s | ~180 ms | **~35.4 s** | **7.08** | **~38.0 – 48.0 s** ($\text{RTF } 7.6–9.6$) | Diminishing returns; unnecessary compute overhead. |
 
-**Feasibility Verdict:** RTF of 1.8 to 3.5 is **completely feasible for batch translation**. A user translating a 10-second voice message will receive their translated audio in ~18 to 35 seconds.
+> [!NOTE]
+> **Reconciliation Note (Phase 3A.1 Pre-Download Audit):**
+> - **Theoretical Latency:** Direct arithmetic calculation ($N \times T_{\text{step}} + T_{\text{vocoder}}$) assuming zero I/O and zero emulation overhead.
+> - **Emulation-Buffered Estimate:** Real-world projection accounting for audio feature extraction, ConvNeXt prefix caching, inter-step tensor allocations, and Windows ARM64 AMD64 emulation overhead (~15–30%).
+> - **Empirical Verification:** Ground-truth latency and RTF will be measured during Phase 3B initial inference experiments.
+
+**Feasibility Verdict:** An RTF of 1.8 to 3.5 (theoretical) or 2.0 to 4.2 (buffered) is **completely feasible for batch translation**. A user translating a 10-second voice message will receive their translated audio in ~20 to 35 seconds.
 
 ---
 

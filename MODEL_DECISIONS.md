@@ -235,14 +235,14 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 | **Hugging Face** | https://huggingface.co/ai4bharat/IndicF5 |
 | **License** | MIT License |
 | **Parameter Scale** | ~300M parameters |
-| **Checkpoint Size** | 1,337.8 MB (~1.34 GB) (`model.safetensors`) |
+| **Checkpoint Size** | 1,337.8 MB (~1.34 GB) (`model.safetensors`) + ~54 MB (`vocos`) $\approx$ **1.39 GB total** |
 | **Language Support** | 11 Indic languages natively, including **Telugu (`te`)** |
 | **Telugu Relevance** | Native Telugu phoneme and script support |
 
 #### Key Features & Architecture
 
-- **Architecture:** Flow-Matching Diffusion Transformer (DiT) with ConvNeXt mel-extractor and Vocos/HiFi-GAN vocoder.
-- **Cross-Lingual Voice Cloning:** Uses an in-context acoustic prefix representation. An English reference audio prompt (3–10s WAV) conditions the generation of Telugu phonemes while preserving speaker pitch, timbre, and formant structure.
+- **Architecture:** Flow-Matching Diffusion Transformer (DiT) with ConvNeXt mel-extractor and Vocos neural vocoder (`charactr/vocos-mel-24khz`).
+- **Cross-Lingual Voice Conditioning Status:** Uses an in-context acoustic prefix representation. An English reference audio prompt (3–10s WAV) conditions the generation of Telugu phonemes. *Pre-Download Audit Note (Phase 3A.1):* While the underlying F5-TTS architecture supports English, official IndicF5 documentation does not provide an explicit English-to-Telugu voice-cloning accuracy benchmark. This capability is formally designated as an **Experimental Hypothesis** requiring empirical proof-of-concept validation in Phase 3B.
 - **Conditioning Inputs Required:**
   1. `reference_audio`: Raw canonical 16 kHz WAV audio (3–10 seconds).
   2. `reference_transcript`: Verbatim text transcript of the reference audio (essential for cross-modal alignment).
@@ -251,10 +251,10 @@ All Whisper model sizes are available via CTranslate2 conversion. Empirical benc
 
 #### Hardware & CPU Performance (Snapdragon X CPU, 8 cores)
 
-- **Peak Memory:** ~2.8–3.5 GB runtime RAM. Fits comfortably inside the 15.6 GB machine memory envelope.
-- **ODE Solver Latency:**
-  - `nfe_steps=16` (Balanced): ~10–14s per 5s speech clip (RTF ~2.0–2.8).
-  - `nfe_steps=32` (High-Fidelity): ~19–25s per 5s speech clip (RTF ~3.8–5.0).
+- **Memory Constraints (Audited in Phase 3A.1):** Peak process RAM is estimated at ~2.8–3.5 GB. While installed RAM is 15.6 GB, live available memory is ~2.55 GB. Therefore, concurrent execution with ASR and translation is infeasible. **Sequential model lifecycle management** (unloading Whisper and IndicTrans2 before loading IndicF5) is strictly required to prevent paging thrash.
+- **CPU Latency & RTF Reconciliation:**
+  - *Theoretical Model Baseline:* ~9.0s for 16 steps ($\text{RTF } 1.80$); ~17.8s for 32 steps ($\text{RTF } 3.56$) for a 5s utterance.
+  - *Emulation-Buffered System Estimate:* ~10–14s for 16 steps ($\text{RTF } 2.0–2.8$); ~19–25s for 32 steps ($\text{RTF } 3.8–5.0$) accounting for feature extraction, memory allocations, and x64 emulation overhead.
 - **Batch Processing Viability:** Fully viable for batch voice translation. Not viable for real-time streaming (<1.0 RTF).
 
 #### Compatibility Matrix
